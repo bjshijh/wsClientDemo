@@ -1,0 +1,51 @@
+<html>
+    <head>
+        <title>WebSocket Client Test</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript">
+            var websocket ;
+            function sendWsMsg() {
+                var msg=document.getElementById("txtMsg").value;
+                websocket.send( msg);
+            }
+            function initWs () {
+                if (window.WebSocket) {
+                    websocket = new WebSocket(
+                        encodeURI('ws://localhost:50001/websocket'));
+                    websocket.onopen = function () {
+                        console.log('已连接');
+                        websocket.send("I am online" );
+                        heartbeat_timer = setInterval(function () { wsping(); }, 180000);
+                    };
+                    websocket.onerror = function () {
+                        console.log('连接发生错误');
+                    };
+                    websocket.onclose = function () {
+                        console.log('已经断开连接');
+                        initWs();
+                    };
+                    // 消息接收
+                    websocket.onmessage = function (message) {
+                        console.log(message)
+                        alert( "您有新的消息，请及时处理！")
+                    };
+                } else {
+                    alert("该浏览器不支持Websockt。<br/>建议使用高版本的浏览器，<br/>如 IE10, Firefox, Chrome");
+                }
+            }
+            
+            function wsping() {
+                if (websocket.bufferedAmount == 0) {
+                        websocket.send('Heartbit');
+                }
+            }
+        </script>
+    </head>
+    <body onload="initWs();">
+        <div></div>
+        <input type="text" id="txtMsg" size="40">
+        
+        <input type="button" value="send message" onclick="sendWsMsg();">
+    </body>
+</html>
