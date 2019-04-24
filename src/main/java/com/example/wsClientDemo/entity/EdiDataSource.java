@@ -28,5 +28,6 @@ public class EdiDataSource {
 	@Value("${dataSource.retrievingSql}")
 	public String retrievingSql;
 	
-	 
+	@Value("${dataSource.localFileDir}")
+        public String localFileDir;
 }

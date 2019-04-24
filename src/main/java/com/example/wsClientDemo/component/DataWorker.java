@@ -12,14 +12,18 @@ public class DataWorker {
     @Autowired
     EdiAgent agent ;
     
+    DataUploadingTool duTool = null;
+    
     public void doJob() throws Exception {
         String dsType = agent.dataSource.dataSourceType;
         
         if ( dsType.equalsIgnoreCase("http")){
             log.info("Getting data from MES http interface......");
         }else if ( dsType.equalsIgnoreCase("database")) {
-            log.info("Getting data from MES database directly......");
-        }else{
+            log.info("Getting data from MES system......");
+        }else if ( dsType.equalsIgnoreCase("file")) {
+            log.info("Getting data from file(s)......");
+        }else {
             throw new Exception("Unknown Data Source");
         }
         
@@ -28,8 +32,13 @@ public class DataWorker {
             log.info("Sending data to Server via HTTP......");
         }else if ( serverChannel.equalsIgnoreCase("ftp")) {
             log.info("Sending data to Server via FTP......");
+            duTool = new FtpTool();
+            duTool.setAgent(agent);
+            duTool.doRetrieveAndUpload();
         }else{
             throw new Exception("Unknown Server Channel");
         }
     }
+    
+    
 }

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
+import java.net.URL;
 
 @Component
 @PropertySource("classpath:/agent.properties")
@@ -20,11 +21,23 @@ public class EdiAgent {
 	@Value("${agent.taskInterval}")
 	public int interval;
 	
-        @Value("${server.data.httpChannel}")
-        public String serverHttpChannel;
+        @Value("${server.target.httpUrl}")
+        public String serverHttpUrl;
         
-        @Value("${server.data.ftpChannel}")
-        public String serverFtpChannel;
+        @Value("${server.target.ftpHost}")
+        public String serverFtpHost;
+        
+        @Value("${server.target.ftpPort}")
+        public int serverFtpPort;
+        
+        
+        @Value("${server.target.dir}")
+        public String remoteDir;
+        @Value("${server.target.username}")
+        public String targetUsername;
+        @Value("${server.target.password}")
+        public String targetPassowrd;
+        
         
 	public String remoteIp;
 	public int status=0;
@@ -33,12 +46,24 @@ public class EdiAgent {
 	public EdiDataSource dataSource;
         
         public String getServerDataChannel() {
-            if ( this.serverHttpChannel!=null ){
+            if ( this.serverHttpUrl!=null && this.serverHttpUrl.length()>10){
                 return "http";
-            }else if ( this.serverFtpChannel!=null ){
+            }else if ( this.serverFtpHost !=null ){
+                if ( this.serverFtpPort==0)
+                    serverFtpPort=21;
+                
                 return "ftp";
             }else{
                 return "unknown";
             }
+        }
+        
+        public boolean isTargetInfoCorrect() throws Exception {
+            if ( "http".equals(getServerDataChannel()) ){
+                new URL(serverHttpUrl);
+            }else{
+                new URL("ftp://" + serverFtpHost + ":" + serverFtpPort);
+            }
+            return true;
         }
 }
