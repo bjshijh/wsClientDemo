@@ -38,7 +38,9 @@ public class EdiAgent {
         @Value("${server.target.password}")
         public String targetPassowrd;
         
-        
+        @Value("${server.target.useSSL}")
+        public String useSSL;
+                
 	public String remoteIp;
 	public int status=0;
 	

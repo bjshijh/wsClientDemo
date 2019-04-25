@@ -1,5 +1,6 @@
-package com.example.wsClientDemo.component;
+package com.example.wsClientDemo.component.ftp;
 
+import com.example.wsClientDemo.component.DataUploadingTool;
 import com.example.wsClientDemo.entity.EdiAgent;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,44 +18,19 @@ import org.apache.commons.net.ftp.FTPReply;
 import com.example.wsClientDemo.entity.TaskResult;
 
 @Slf4j
-public class FtpTool implements DataUploadingTool {
+public class FtpFtpsTool implements DataUploadingTool {
     EdiAgent agent;
+    FtpClientInterface ftp_ftps_Client = null;
     
     @Override
     public void setAgent(EdiAgent ediAgent) {
         this.agent=ediAgent;
     }
-    public FtpTool() {
+    public FtpFtpsTool() {
     
     }
-    public FtpTool(EdiAgent ediAgent) {
+    public FtpFtpsTool(EdiAgent ediAgent) {
         this.agent=ediAgent;
-    }
-
-    public FTPClient connectFtpServer() throws Exception {
-        FTPClient ftpClient = new FTPClient();
-        ftpClient.setConnectTimeout(1000 * 30);
-        ftpClient.setControlEncoding("utf-8");
-        // 被动模式, 必须的
-        ftpClient.enterLocalPassiveMode();
-        try {
-            ftpClient.connect(agent.serverFtpHost, agent.serverFtpPort);
-            ftpClient.login(agent.targetUsername, agent.targetPassowrd);
-            int replyCode = ftpClient.getReplyCode();
-            if (!FTPReply.isPositiveCompletion(replyCode)) {
-                log.error("connect ftp {}:{} failed", agent.serverFtpHost, agent.serverFtpPort);
-                ftpClient.disconnect();
-                return null;
-            }
-            log.info("replyCode==========={}", replyCode);
-            ftpClient.changeWorkingDirectory( agent.remoteDir);
-            ftpClient.setFileType(FTP.BINARY_FILE_TYPE);//设置文件传输模式为二进制
-        } catch (Exception e) {
-            log.error("Fail ------->>>{}", e.getCause());
-            ftpClient.disconnect();
-            return null;
-        }
-        return ftpClient;
     }
 
     List<File> retrieveLocalFiles() {
@@ -76,9 +52,15 @@ public class FtpTool implements DataUploadingTool {
 
     void uploadFiles() throws Exception {
         List<File> files = this.retrieveLocalFiles();
-
-        FTPClient ftpClient = connectFtpServer();
-        if (ftpClient == null) {
+        if ( agent.useSSL.equalsIgnoreCase("YES")) 
+            ftp_ftps_Client = new FtpsClient( agent.serverFtpHost, agent.serverFtpPort, 
+                agent.targetUsername, agent.targetPassowrd, agent.remoteDir);
+        else
+            ftp_ftps_Client = new FtpClient( agent.serverFtpHost, agent.serverFtpPort, 
+                agent.targetUsername, agent.targetPassowrd, agent.remoteDir);
+        
+        ftp_ftps_Client.connectToFtpServer();
+        if (ftp_ftps_Client == null) {
             return;
         }
 
@@ -87,9 +69,8 @@ public class FtpTool implements DataUploadingTool {
             for (File f : files ) {
                 InputStream is = new FileInputStream( f );
                 filename = f.getName();
-                ftpClient.changeWorkingDirectory(agent.remoteDir); //进入到文件保存的目录
-                Boolean isSuccess = ftpClient.storeFile( filename, is);//保存文件
-                if (!isSuccess) {
+                Boolean isSuccess = ftp_ftps_Client.upload(filename, is);//保存文件
+                    if (!isSuccess) {
                     log.error(filename + "---》上传失败！");
                 }else{
                     is.close();
@@ -97,15 +78,10 @@ public class FtpTool implements DataUploadingTool {
                 }
                 log.info("{}---》上传成功！", filename);
             }
-            ftpClient.logout();
         } catch (Exception e) {
             log.error("{}---》上传失败！", filename);
             throw e;
-        } finally {
-            if (ftpClient.isConnected()) {
-                ftpClient.disconnect();
-            }
-        }
+        } 
     }
 
     @Override

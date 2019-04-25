@@ -4,6 +4,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.wsClientDemo.entity.EdiAgent;
+import com.example.wsClientDemo.component.ftp.FtpFtpsTool;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -30,9 +32,9 @@ public class DataWorker {
         String serverChannel = agent.getServerDataChannel();
         if ( serverChannel.equalsIgnoreCase("http") ) {
             log.info("Sending data to Server via HTTP......");
-        }else if ( serverChannel.equalsIgnoreCase("ftp")) {
-            log.info("Sending data to Server via FTP......");
-            duTool = new FtpTool();
+        }else if ( serverChannel.equalsIgnoreCase("ftp")) {            
+            log.info("Sending data to Server via FTP(S)......");
+            duTool = new FtpFtpsTool();
             duTool.setAgent(agent);
             duTool.doRetrieveAndUpload();
         }else{
