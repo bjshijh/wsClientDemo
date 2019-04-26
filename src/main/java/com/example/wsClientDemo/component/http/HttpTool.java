@@ -1,5 +1,6 @@
-package com.example.wsClientDemo.component;
+package com.example.wsClientDemo.component.http;
 
+import com.example.wsClientDemo.component.DataUploadingTool;
 import com.example.wsClientDemo.entity.EdiAgent;
 import com.example.wsClientDemo.entity.TaskResult;
 

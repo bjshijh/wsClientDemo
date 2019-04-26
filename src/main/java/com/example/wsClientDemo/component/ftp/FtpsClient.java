@@ -23,7 +23,6 @@ public class FtpsClient extends FtpServerInfo implements FtpClientInterface {
         client = new FTPSClient(sslContext);
         client.setRemoteVerificationEnabled(false);
 
-        client.setBufferSize(4096);
         client.setControlEncoding("utf-8");
         
         //ftps.addProtocolCommandListener(new PrintCommandListener(new PrintWriter(System.out)));

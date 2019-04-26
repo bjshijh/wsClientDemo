@@ -10,10 +10,6 @@ import java.io.FileInputStream;
 
 import java.util.List;
 import java.util.ArrayList;
-import org.apache.commons.net.ftp.FTP;
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPSClient;
-import org.apache.commons.net.ftp.FTPReply;
 
 import com.example.wsClientDemo.entity.TaskResult;
 
